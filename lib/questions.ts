@@ -182,7 +182,7 @@ export const QUESTIONS: Question[] = [
     section: "gerant",
     type: "choix_unique",
     titre:
-      "Sur les clients qui repartent sans commander parce qu'ils ont trop attendu, ça t'arrive comment ?",
+      "Des clients qui repartent sans commander parce qu'ils ont trop attendu ?",
     options: [
       { id: "jamais", label: "Jamais" },
       { id: "rarement", label: "Rarement" },
@@ -195,7 +195,7 @@ export const QUESTIONS: Question[] = [
     section: "gerant",
     type: "choix_unique",
     titre:
-      "Sur les clients qui repartent parce que ton menu papier les a pas convaincus, ça t'arrive comment ?",
+      "Des clients qui repartent parce que ton menu papier les a pas convaincus ?",
     options: [
       { id: "jamais", label: "Jamais" },
       { id: "rarement", label: "Rarement" },
@@ -208,7 +208,7 @@ export const QUESTIONS: Question[] = [
     section: "gerant",
     type: "choix_unique",
     titre:
-      "Un client qui hésite devant ton menu papier, sans photo pour se décider, et qui finit par ne pas commander le plat — ça t'est déjà arrivé de le remarquer ?",
+      "Un client qui hésite devant ton menu en papier, sans photo pour se décider, et qui finit par ne pas commander le plat — ça t'est déjà arrivé de le remarquer ?",
     options: [
       { id: "oui", label: "Oui" },
       { id: "non", label: "Non" },
@@ -283,7 +283,7 @@ export const QUESTIONS: Question[] = [
     section: "gerant",
     type: "champs_lead",
     titre:
-      "Tu fais partie des premiers à dire oui. Les premiers inscrits seront les premiers contactés pour l'installation.",
+      "Tu fais partie des premiers à dire oui. Les premiers inscrits seront les premiers contactés pour l'installation lors de l'ouverture de la plateforme.",
     dependDe: "q16",
     valeursRequises: ["oui"],
     champs: [
