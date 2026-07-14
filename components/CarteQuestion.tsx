@@ -48,12 +48,12 @@ export function CarteQuestion({
     <div className="h-full w-full flex flex-col px-6 pt-6 pb-10 overflow-y-auto">
       {question.avecCarrousel && <Carrousel profil={profil} />}
 
-      <h1 className="font-display font-semibold text-[1.55rem] leading-[1.25] text-[#F5EDE3] mb-2">
+      <h1 className="font-display font-semibold text-[1.25rem] leading-[1.25] text-[#F5EDE3] mb-2">
         {question.titre}
       </h1>
 
       {question.description && (
-        <p className="font-body text-[0.95rem] leading-relaxed text-[#F5EDE3]/70 mb-5">
+        <p className="font-body text-[0.85rem] leading-relaxed text-[#F5EDE3]/70 mb-5">
           {question.description}
         </p>
       )}
@@ -68,7 +68,7 @@ export function CarteQuestion({
               <div key={opt.id}>
                 <button
                   onClick={() => choisir(opt.id, !!opt.texteConditionnel)}
-                  className={`w-full text-left rounded-2xl px-5 py-4 font-body font-medium text-[1.02rem] border transition-all duration-200 ${
+                  className={`w-full text-left rounded-2xl px-5 py-3 font-body font-medium text-[0.92rem] border transition-all duration-200 ${
                     active
                       ? "bg-[#E8A33D] text-[#1A1410] border-[#E8A33D] scale-[0.98]"
                       : "bg-[#2A2018] text-[#F5EDE3] border-[#F5EDE3]/10 active:scale-[0.98] active:bg-[#2A2018]/80"
