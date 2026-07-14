@@ -1,0 +1,193 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { QUESTIONS } from "@/lib/questions";
+
+type Resultats = {
+  reponses: any[];
+  leads: any[];
+};
+
+export default function AdminPage() {
+  const [connecte, setConnecte] = useState(false);
+  const [motDePasse, setMotDePasse] = useState("");
+  const [erreur, setErreur] = useState("");
+  const [chargement, setChargement] = useState(false);
+  const [data, setData] = useState<Resultats | null>(null);
+
+  async function seConnecter(e: React.FormEvent) {
+    e.preventDefault();
+    setErreur("");
+    setChargement(true);
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ motDePasse }),
+    });
+    setChargement(false);
+    if (!res.ok) {
+      const j = await res.json();
+      setErreur(j.erreur ?? "Erreur de connexion.");
+      return;
+    }
+    setConnecte(true);
+  }
+
+  useEffect(() => {
+    if (!connecte) return;
+    fetch("/api/admin/resultats")
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setErreur("Impossible de charger les résultats."));
+  }, [connecte]);
+
+  if (!connecte) {
+    return (
+      <div className="h-dvh w-full flex items-center justify-center px-6">
+        <form onSubmit={seConnecter} className="w-full max-w-sm flex flex-col gap-4">
+          <h1 className="font-display font-semibold text-xl text-[#F5EDE3] mb-2">
+            Espace administrateur
+          </h1>
+          <input
+            type="password"
+            autoFocus
+            value={motDePasse}
+            onChange={(e) => setMotDePasse(e.target.value)}
+            placeholder="Mot de passe"
+            className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 px-4 py-3.5 text-[#F5EDE3] placeholder:text-[#F5EDE3]/40 focus:outline-none focus:border-[#E8A33D]"
+          />
+          {erreur && <p className="text-sm text-red-400">{erreur}</p>}
+          <button
+            disabled={chargement}
+            className="rounded-xl bg-[#E8A33D] text-[#1A1410] font-semibold py-3.5 disabled:opacity-50"
+          >
+            {chargement ? "Connexion…" : "Entrer"}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="h-dvh w-full flex items-center justify-center">
+        <p className="text-[#F5EDE3]/60">Chargement des résultats…</p>
+      </div>
+    );
+  }
+
+  return <Dashboard data={data} />;
+}
+
+function Dashboard({ data }: { data: Resultats }) {
+  const { reponses, leads } = data;
+  const total = reponses.length;
+  const complets = reponses.filter((r) => r.complet).length;
+  const tauxCompletion = total ? Math.round((complets / total) * 100) : 0;
+  const nbClient = reponses.filter((r) => r.profil === "client").length;
+  const nbGerant = reponses.filter((r) => r.profil === "gerant").length;
+
+  return (
+    <div className="min-h-dvh w-full px-5 py-8 max-w-3xl mx-auto">
+      <h1 className="font-display font-semibold text-2xl text-[#F5EDE3] mb-1">
+        Résultats du sondage
+      </h1>
+      <p className="text-[#F5EDE3]/50 text-sm mb-8">
+        {total} participation{total > 1 ? "s" : ""} enregistrée{total > 1 ? "s" : ""}
+      </p>
+
+      <div className="grid grid-cols-2 gap-3 mb-8">
+        <Stat label="Taux de complétion" valeur={`${tauxCompletion}%`} />
+        <Stat label="Réponses complètes" valeur={`${complets} / ${total}`} />
+        <Stat label="Profil client" valeur={`${nbClient}`} />
+        <Stat label="Profil gérant" valeur={`${nbGerant}`} />
+      </div>
+
+      <h2 className="font-display font-semibold text-lg text-[#F5EDE3] mb-3">
+        Leads gérants intéressés ({leads.length})
+      </h2>
+      <div className="flex flex-col gap-2 mb-10">
+        {leads.length === 0 && (
+          <p className="text-[#F5EDE3]/40 text-sm">Aucun lead pour l&apos;instant.</p>
+        )}
+        {leads.map((l) => (
+          <div key={l.id} className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-4">
+            <p className="font-semibold text-[#F5EDE3]">{l.nom_restaurant}</p>
+            <p className="text-sm text-[#F5EDE3]/70">{l.contact} · {l.ville}</p>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="font-display font-semibold text-lg text-[#F5EDE3] mb-3">
+        Résultats par question
+      </h2>
+      <div className="flex flex-col gap-6">
+        {QUESTIONS.filter((q) => q.type === "choix_unique").map((q) => {
+          const comptes: Record<string, number> = {};
+          reponses.forEach((r) => {
+            const v = r.reponses?.[q.id];
+            const optId = typeof v === "object" && v !== null ? v.option : v;
+            if (!optId) return;
+            comptes[optId] = (comptes[optId] ?? 0) + 1;
+          });
+          const totalQ = Object.values(comptes).reduce((a, b) => a + b, 0);
+          if (totalQ === 0) return null;
+
+          return (
+            <div key={q.id} className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-4">
+              <p className="font-medium text-[#F5EDE3] mb-3 text-sm">{q.titre}</p>
+              <div className="flex flex-col gap-2">
+                {q.options?.map((opt) => {
+                  const n = comptes[opt.id] ?? 0;
+                  const pct = totalQ ? Math.round((n / totalQ) * 100) : 0;
+                  return (
+                    <div key={opt.id}>
+                      <div className="flex justify-between text-xs text-[#F5EDE3]/70 mb-1">
+                        <span>{opt.label}</span>
+                        <span>{pct}% ({n})</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-[#1A1410] overflow-hidden">
+                        <div
+                          className="h-full bg-[#E8A33D]"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <h2 className="font-display font-semibold text-lg text-[#F5EDE3] mt-10 mb-3">
+        Réponses texte libres
+      </h2>
+      <div className="flex flex-col gap-2 pb-10">
+        {reponses.flatMap((r) =>
+          Object.entries(r.reponses ?? {})
+            .filter(([, v]: [string, any]) => typeof v === "object" && v?.texte)
+            .map(([qId, v]: [string, any]) => (
+              <div
+                key={r.id + qId}
+                className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-3 text-sm"
+              >
+                <span className="text-[#E8A33D]/80 text-xs uppercase">{qId}</span>
+                <p className="text-[#F5EDE3]/90 mt-1">{v.texte}</p>
+              </div>
+            ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, valeur }: { label: string; valeur: string }) {
+  return (
+    <div className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-4">
+      <p className="text-[#F5EDE3]/50 text-xs mb-1">{label}</p>
+      <p className="font-display font-semibold text-xl text-[#F5EDE3]">{valeur}</p>
+    </div>
+  );
+}
