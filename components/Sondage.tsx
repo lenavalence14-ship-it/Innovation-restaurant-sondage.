@@ -10,6 +10,7 @@ type Etape = "accueil" | "sondage" | "fin";
 
 export function Sondage() {
   const [etape, setEtape] = useState<Etape>("accueil");
+  const idGenere = useRef<string>(crypto.randomUUID());
   const [reponses, setReponses] = useState<Record<string, any>>({});
   const [index, setIndex] = useState(0);
   const reponseIdRef = useRef<string | null>(null);
@@ -32,13 +33,11 @@ export function Sondage() {
   async function sauvegarder(nouvellesReponses: Record<string, any>, complet: boolean) {
     try {
       if (!reponseIdRef.current) {
-        const { data, error } = await supabase
+        reponseIdRef.current = idGenere.current;
+        const { error } = await supabase
           .from("reponses")
-          .insert({ profil: nouvellesReponses["q1"] ?? "client", reponses: nouvellesReponses, complet })
-          .select("id")
-          .single();
+          .insert({ id: idGenere.current, profil: nouvellesReponses["q1"] ?? "client", reponses: nouvellesReponses, complet });
         if (error) throw error;
-        reponseIdRef.current = data.id;
       } else {
         const { error } = await supabase
           .from("reponses")
