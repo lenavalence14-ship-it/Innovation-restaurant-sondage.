@@ -75,83 +75,6 @@ export function Sondage() {
           nom_restaurant: lead.nom_restaurant,
           contact: lead.contact,
           ville: lead.ville,
-"use client";
-
-import { useEffect, useMemo, useRef, useState } from "react";
-import { parcours, Profil } from "@/lib/questions";
-import { CarteQuestion } from "./CarteQuestion";
-import { useSwipeNav } from "@/lib/useSwipeNav";
-import { supabase } from "@/lib/supabaseClient";
-
-type Etape = "accueil" | "sondage" | "fin";
-
-export function Sondage() {
-  const [etape, setEtape] = useState<Etape>("accueil");
-  const idGenere = useRef<string>(crypto.randomUUID());
-  const [reponses, setReponses] = useState<Record<string, any>>({});
-  const [index, setIndex] = useState(0);
-  const reponseIdRef = useRef<string | null>(null);
-  // DEBUG TEMPORAIRE — à retirer une fois le bug de sauvegarde confirmé/corrigé.
-  const [debugMsg, setDebugMsg] = useState<string | null>(null);
-
-  const questions = useMemo(() => parcours(reponses), [reponses]);
-  const questionActuelle = questions[index];
-  const profil: Profil | undefined = reponses["q1"];
-
-  const peutReculer = index > 0;
-  const aReponduActuelle = reponses[questionActuelle.id] !== undefined;
-  const peutAvancer = index < questions.length - 1 && aReponduActuelle;
-
-  const { offset, enTransition, handlers, avancerAuto } = useSwipeNav({
-    peutAvancer,
-    peutReculer,
-    onAvancer: () => setIndex((i) => Math.min(i + 1, questions.length - 1)),
-    onReculer: () => setIndex((i) => Math.max(i - 1, 0)),
-  });
-
-  async function sauvegarder(nouvellesReponses: Record<string, any>, complet: boolean) {
-    try {
-      if (!reponseIdRef.current) {
-        reponseIdRef.current = idGenere.current;
-        const { error } = await supabase
-          .from("reponses")
-          .insert({ id: idGenere.current, profil: nouvellesReponses["q1"] ?? "client", reponses: nouvellesReponses, complet });
-        if (error) {
-          setDebugMsg(`INSERT a échoué: ${error.message} (code ${error.code})`);
-          throw error;
-        }
-      } else {
-        const { error, data } = await supabase
-          .from("reponses")
-          .update({
-            reponses: nouvellesReponses,
-            complet,
-            profil: nouvellesReponses["q1"] ?? "client",
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", reponseIdRef.current)
-          .select();
-        if (error) {
-          setDebugMsg(`UPDATE a échoué: ${error.message} (code ${error.code})`);
-          throw error;
-        }
-        if (!data || data.length === 0) {
-          setDebugMsg(
-            `UPDATE exécuté sans erreur mais 0 ligne modifiée pour id=${reponseIdRef.current}. Vérifie la policy RLS UPDATE sur 'reponses'.`
-          );
-        } else {
-          setDebugMsg(null);
-        }
-      }
-
-      // Capture du lead séparément si Q17 vient d'être répondue
-      if (nouvellesReponses["q17"] && reponseIdRef.current) {
-        const lead = nouvellesReponses["q17"];
-        await supabase.from("leads").insert({
-          reponse_id: reponseIdRef.current,
-          nom_restaurant: lead.nom_restaurant,
-          contact: lead.contact,
-          ville: lead.ville,
         });
       }
     } catch (e) {
@@ -260,38 +183,5 @@ export function Sondage() {
     </div>
   );
           }
-  
-      {/* Barre de progression fine en haut */}
-      <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#F5EDE3]/10 z-20">
-        <div
-          className="h-full bg-[#E8A33D] transition-all duration-300 ease-out"
-          style={{ width: `${progression}%` }}
-        />
-      </div>
 
-      <div
-        className="flex-1 relative touch-none"
-        onTouchStart={handlers.onTouchStart}
-        onTouchMove={handlers.onTouchMove}
-        onTouchEnd={handlers.onTouchEnd}
-      >
-        <div
-          className="h-full w-full"
-          style={{
-            transform: `translateY(${offset}px)`,
-            transition: enTransition ? "transform 260ms cubic-bezier(0.22,1,0.36,1)" : "none",
-          }}
-        >
-          <CarteQuestion
-            key={questionActuelle.id}
-            question={questionActuelle}
-            profil={profil}
-            valeurActuelle={reponses[questionActuelle.id]}
-            onRepondre={repondre}
-          />
-        </div>
-      </div>
-    </div>
-  );
-          }
-  
+                       
