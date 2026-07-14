@@ -39,7 +39,7 @@ export function Sondage() {
           .insert({ id: idGenere.current, profil: nouvellesReponses["q1"] ?? "client", reponses: nouvellesReponses, complet });
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { error, data } = await supabase
           .from("reponses")
           .update({
             reponses: nouvellesReponses,
@@ -47,8 +47,16 @@ export function Sondage() {
             profil: nouvellesReponses["q1"] ?? "client",
             updated_at: new Date().toISOString(),
           })
-          .eq("id", reponseIdRef.current);
+          .eq("id", reponseIdRef.current)
+          .select();
         if (error) throw error;
+        if (!data || data.length === 0) {
+          console.error(
+            "UPDATE exécuté sans erreur mais 0 ligne modifiée. id=",
+            reponseIdRef.current,
+            "→ vérifier policy RLS UPDATE sur 'reponses' ou incohérence d'id."
+          );
+        }
       }
 
       // Capture du lead séparément si Q17 vient d'être répondue
@@ -80,7 +88,12 @@ export function Sondage() {
       window.setTimeout(() => setEtape("fin"), 380);
       return;
     }
-    avancerAuto();
+
+    // force=true : on vient de répondre à l'instant, l'avancement est donc
+    // toujours légitime, même si `peutAvancer` (calculé sur le render
+    // précédent, avant que setReponses(maj) ne soit appliqué) vaut encore
+    // `false` par stale closure. C'était la cause du blocage sur q1.
+    avancerAuto(true);
   }
 
   if (etape === "accueil") {
@@ -154,4 +167,5 @@ export function Sondage() {
       </div>
     </div>
   );
-}
+          }
+  
