@@ -22,7 +22,7 @@ export function Carrousel({ profil }: { profil: "client" | "gerant" | undefined 
         {images.map((img) => (
           <div
             key={img.src}
-            className="relative shrink-0 w-[62%] max-w-[220px] aspect-[9/16] rounded-2xl overflow-hidden snap-start border border-[#E8A33D]/20 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+            className="relative shrink-0 w-[42%] max-w-[150px] aspect-[9/16] rounded-2xl overflow-hidden snap-start border border-[#E8A33D]/20 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
           >
             <Image
               src={img.src}
