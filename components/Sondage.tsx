@@ -19,7 +19,8 @@ export function Sondage() {
   const profil: Profil | undefined = reponses["q1"];
 
   const peutReculer = index > 0;
-  const peutAvancer = index < questions.length - 1;
+  const aReponduActuelle = reponses[questionActuelle.id] !== undefined;
+  const peutAvancer = index < questions.length - 1 && aReponduActuelle;
 
   const { offset, enTransition, handlers, avancerAuto } = useSwipeNav({
     peutAvancer,
