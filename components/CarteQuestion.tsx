@@ -69,10 +69,10 @@ export function CarteQuestion({
         </p>
       )}
 
-      {/* Spacer flexible : pousse les options en bas seulement s'il y a de la place.
-          Sur les questions avec description longue + plusieurs options (ex: Q15),
-          ce spacer s'écrase naturellement à 0 plutôt que de pousser les options hors écran. */}
-      <div className="flex-1 min-h-4" />
+      {/* Spacer flexible : pousse les options en bas sur les questions courtes.
+          Neutralisé uniquement sur les questions marquées explicitement
+          (ex: Q15), pour éviter un grand vide entre la description et les options. */}
+      {!question.collerOptionsApresDescription && <div className="flex-1 min-h-4" />}
 
       {question.type === "choix_unique" && (
         <div className="flex flex-col gap-3 mt-4 pb-6">
@@ -188,5 +188,4 @@ function TexteCourtForm({
       </button>
     </div>
   );
-      }
-                        
+}
