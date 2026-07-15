@@ -99,7 +99,8 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
     setSuppression(false);
 
     if (!res.ok) {
-      alert("Échec de la réinitialisation. Réessaie ou vérifie ta connexion.");
+      const j = await res.json().catch(() => ({}));
+      alert(`Échec de la réinitialisation.\nStatut: ${res.status}\nErreur: ${j.erreur ?? "inconnue"}`);
       return;
     }
     onReinitialise();
