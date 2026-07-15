@@ -16,7 +16,7 @@ export type Question = {
   section: "commune" | "client" | "gerant";
   type: "choix_unique" | "texte_court" | "champs_lead";
   titre: string;
-  // Sous-texte descriptif (pour Q2, Q5, Q15...)
+  // Sous-texte descriptif (pour Q2, Q15...)
   description?: string;
   options?: ChoixOption[];
   // Affiche le carrousel d'images associé au profil courant
@@ -33,70 +33,64 @@ export const QUESTIONS: Question[] = [
     id: "q1",
     section: "commune",
     type: "choix_unique",
-    titre:
-      "Tu es devant un restaurant. Tu y entres pour manger, ou c'est toi qui gères la salle ?",
+    titre: "Tu es ?",
     options: [
-      { id: "client", label: "J'y vais pour manger" },
-      { id: "gerant", label: "C'est mon resto, ou j'y travaille" },
+      { id: "client", label: "🍽️ Un client qui va au restaurant pour manger." },
+      { id: "gerant", label: "👨‍🍳 Gérant ou employé d'un restaurant." },
     ],
   },
   {
     id: "q2",
     section: "commune",
     type: "choix_unique",
-    titre:
-      "Tu scannes un code QR sur la table. Le menu s'ouvre en plein écran, tu défiles comme sur TikTok, chaque plat en vidéo, et ta commande part directement à la cuisine dès que tu valides. À côté, y'a un resto avec le menu papier classique, où tu dois attendre le serveur des dizaines de minutes avant même de commander. Tu vas où ce soir ?",
+    titre: "Lequel choisirais-tu ?",
+    description:
+      "Imagine que tu arrives dans deux restaurants proposant les mêmes plats, aux mêmes prix.\n\nDans le premier, tu consultes le menu sur ton téléphone grâce à un QR Code. Tu peux voir chaque plat en photo ou en vidéo plein écran comme sur TikTok et passer ta commande directement depuis ta table.\n\nDans le second, tu consultes un menu papier et la commande est prise par un serveur.",
     avecCarrousel: true,
     options: [
-      { id: "tiktok", label: "Le resto avec le menu comme sur TikTok" },
-      { id: "papier", label: "Le resto avec le menu papier" },
+      { id: "numerique", label: "Le restaurant avec le menu numérique." },
+      { id: "papier", label: "Le restaurant avec le menu papier." },
     ],
   },
   {
     id: "q3",
     section: "commune",
     type: "choix_unique",
-    titre:
-      "La dernière fois que t'as attendu plus de 10 minutes juste pour qu'on prenne ta commande, c'était :",
+    titre: "Quand tu vas au restaurant, attendre avant de pouvoir commander, c'est quelque chose qui t'arrive :",
     options: [
-      { id: "semaine", label: "Cette semaine" },
-      { id: "mois", label: "Ce mois" },
-      { id: "longtemps", label: "Ça fait longtemps" },
-      { id: "jamais", label: "Ça m'arrive jamais" },
+      { id: "tres_souvent", label: "Très souvent." },
+      { id: "parfois", label: "Parfois." },
+      { id: "rarement", label: "Rarement." },
+      { id: "jamais", label: "Jamais." },
     ],
   },
   {
-    id: "q4a",
+    id: "q4",
     section: "commune",
     type: "choix_unique",
-    titre:
-      "Ça t'est déjà arrivé de te lever et partir d'un resto parce que t'attendais trop pour commander ?",
+    titre: "T'est-il déjà arrivé de quitter un restaurant avant de commander ?",
     options: [
-      { id: "oui", label: "Oui" },
-      { id: "non", label: "Non" },
-    ],
-  },
-  {
-    id: "q4b",
-    section: "commune",
-    type: "choix_unique",
-    titre:
-      "Ça t'est déjà arrivé de regarder un menu papier, rien ne te donne envie, et te dire \"je reviendrai pas ici\" ?",
-    options: [
-      { id: "oui", label: "Oui" },
-      { id: "non", label: "Non" },
+      { id: "oui", label: "Oui." },
+      { id: "non", label: "Non." },
     ],
   },
   {
     id: "q5",
     section: "commune",
     type: "choix_unique",
-    titre:
-      "Deux restos, même quartier, mêmes plats, même prix. Un avec un menu comme sur TikTok où tu commandes direct sans attendre personne, l'autre avec le menu papier classique où tu dois attendre le serveur des dizaines de minutes. Tu choisis lequel ?",
-    avecCarrousel: true,
+    titre: "Quelle était la principale raison ?",
+    dependDe: "q4",
+    valeursRequises: ["oui"],
     options: [
-      { id: "tiktok", label: "Le menu comme sur TikTok" },
-      { id: "papier", label: "Le menu papier" },
+      { id: "attente", label: "L'attente." },
+      { id: "menu_pas_envie", label: "Le menu ne m'a pas donné envie." },
+      { id: "trop_rempli", label: "Le restaurant était trop rempli." },
+      {
+        id: "autre",
+        label: "Autre :",
+        texteConditionnel: true,
+        placeholderTexte: "Précise",
+      },
     ],
   },
 
@@ -106,146 +100,133 @@ export const QUESTIONS: Question[] = [
     section: "client",
     type: "choix_unique",
     titre:
-      "T'as déjà voulu savoir si un plat était trop épicé ou s'il contenait un allergène, et t'as dû attendre le serveur pour demander ?",
+      "T'est-il déjà arrivé d'attendre un serveur juste pour poser une question sur un plat (composition, allergènes, niveau d'épices...) ?",
     options: [
-      { id: "oui", label: "Oui" },
-      { id: "non", label: "Non" },
+      { id: "oui", label: "Oui." },
+      { id: "non", label: "Non." },
     ],
   },
   {
     id: "q7",
     section: "client",
     type: "choix_unique",
-    titre:
-      "Tu sors en groupe, personne n'arrive à se décider. Ça irait plus vite avec une vidéo de chaque plat sur le téléphone, ou avec tout le monde qui se bat sur la même feuille papier ?",
+    titre: "Quand tu choisis un plat, qu'est-ce qui peut t'aider le plus à prendre une décision ?",
     avecCarrousel: true,
     options: [
-      { id: "video", label: "Avec la vidéo" },
-      { id: "papier", label: "Avec le papier" },
+      { id: "photo_video", label: "Voir une photo ou une vidéo." },
+      { id: "description", label: "Lire la description sur le menu." },
+      { id: "serveur", label: "Demander conseil au serveur." },
     ],
   },
   {
-    id: "q8a",
+    id: "q8",
     section: "client",
     type: "choix_unique",
     titre:
-      "T'as déjà commandé un plat en pensant que c'était autre chose, juste parce que le nom sur le papier prêtait à confusion ?",
+      "T'est-il déjà arrivé de ne pas commander un plat parce que tu ne savais pas vraiment à quoi il ressemblait ?",
     options: [
-      { id: "oui", label: "Oui" },
-      { id: "non", label: "Non" },
-    ],
-  },
-  {
-    id: "q8b",
-    section: "client",
-    type: "choix_unique",
-    titre:
-      "T'as déjà voulu commander un plat, mais t'as pas osé, parce que tu savais pas à quoi ça allait ressembler ?",
-    options: [
-      { id: "oui", label: "Oui" },
-      { id: "non", label: "Non" },
+      { id: "oui", label: "Oui." },
+      { id: "non", label: "Non." },
     ],
   },
   {
     id: "q9",
     section: "client",
     type: "choix_unique",
-    titre:
-      "Si tu pouvais voir les avis d'autres clients sur un plat avant de commander, tu regarderais ?",
+    titre: "Si tu pouvais consulter les avis des autres clients sur chaque plat avant de commander, tu les regarderais ?",
     options: [
-      { id: "oui", label: "Oui" },
-      { id: "non", label: "Non" },
-      { id: "savais_pas", label: "Je savais même pas que ça pouvait exister" },
+      { id: "oui", label: "Oui." },
+      { id: "non", label: "Non." },
+      { id: "sais_pas", label: "Je ne sais pas." },
     ],
   },
   {
     id: "q10",
     section: "client",
     type: "choix_unique",
-    titre:
-      "Avec ce menu comme sur TikTok, où ta commande part direct sans attendre le serveur :",
+    titre: "Si un restaurant proposait un menu numérique comme celui présenté plus haut, serais-tu prêt à l'utiliser ?",
     options: [
-      { id: "pret", label: "Je serais prêt à l'utiliser" },
-      { id: "non_interesse", label: "Non, ça ne m'intéresse pas" },
-      {
-        id: "non_raison",
-        label: "Non, à cause de :",
-        texteConditionnel: true,
-        placeholderTexte: "Dis-nous pourquoi",
-      },
+      { id: "oui", label: "Oui." },
+      { id: "non", label: "Non." },
+      { id: "essayer_dabord", label: "J'aimerais d'abord l'essayer." },
     ],
+  },
+  {
+    id: "q10_raison",
+    section: "client",
+    type: "texte_court",
+    titre: "Pourquoi ?",
+    dependDe: "q10",
+    valeursRequises: ["non"],
   },
 
   // ---------- SECTION GÉRANT / PROPRIÉTAIRE ----------
   {
-    id: "q11a",
+    id: "q11",
     section: "gerant",
     type: "choix_unique",
-    titre:
-      "Des clients qui repartent sans commander parce qu'ils ont trop attendu ?",
+    titre: "À quelle fréquence des clients repartent sans commander dans ton restaurant ?",
     options: [
-      { id: "jamais", label: "Jamais" },
-      { id: "rarement", label: "Rarement" },
-      { id: "souvent", label: "Souvent" },
-      { id: "tres_souvent", label: "Très souvent" },
-    ],
-  },
-  {
-    id: "q11b",
-    section: "gerant",
-    type: "choix_unique",
-    titre:
-      "Des clients qui repartent parce que ton menu papier les a pas convaincus ?",
-    options: [
-      { id: "jamais", label: "Jamais" },
-      { id: "rarement", label: "Rarement" },
-      { id: "souvent", label: "Souvent" },
-      { id: "tres_souvent", label: "Très souvent" },
+      { id: "jamais", label: "Jamais." },
+      { id: "rarement", label: "Rarement." },
+      { id: "souvent", label: "Souvent." },
+      { id: "tres_souvent", label: "Très souvent." },
     ],
   },
   {
     id: "q12",
     section: "gerant",
     type: "choix_unique",
-    titre:
-      "Un client qui hésite devant ton menu en papier, sans photo pour se décider, et qui finit par ne pas commander le plat — ça t'est déjà arrivé de le remarquer ?",
+    titre: "D'après toi, quelle est la raison principale ?",
     options: [
-      { id: "oui", label: "Oui" },
-      { id: "non", label: "Non" },
+      { id: "attente", label: "L'attente." },
+      { id: "menu_pas_envie", label: "Le menu ne donne pas assez envie." },
+      { id: "prix", label: "Les prix." },
+      { id: "trop_monde", label: "Trop de monde." },
+      {
+        id: "autre",
+        label: "Autre :",
+        texteConditionnel: true,
+        placeholderTexte: "Précise",
+      },
     ],
   },
   {
     id: "q13",
     section: "gerant",
     type: "choix_unique",
-    titre: "Ton menu, tu le changes souvent (nouveau plat, prix, rupture) ?",
+    titre: "T'arrive-t-il de modifier ton menu (prix, nouveaux plats, ruptures...) ?",
     options: [
-      { id: "souvent", label: "Souvent" },
-      { id: "de_temps_en_temps", label: "De temps en temps" },
-      { id: "presque_jamais", label: "Presque jamais" },
+      { id: "souvent", label: "Souvent." },
+      { id: "de_temps_en_temps", label: "De temps en temps." },
+      { id: "rarement", label: "Rarement." },
     ],
   },
   {
     id: "q14",
     section: "gerant",
     type: "texte_court",
-    titre: "Combien tu dépenses par mois rien qu'en impression de menu ?",
+    titre: "En moyenne, combien dépenses-tu chaque mois pour imprimer ou réimprimer tes menus ?",
   },
   {
     id: "q15",
     section: "gerant",
     type: "choix_unique",
-    titre: "Avec ce système :",
+    titre: "Qu'est-ce qui te ferait encore hésiter à utiliser ce système ?",
     description:
-      "Les commandes des clients arrivent directement chez toi depuis l'application. Ton serveur n'a plus besoin d'aller demander à chaque table. Plus aucun client ne part faute d'attente. Tu ajoutes, modifies, retires ou désactives un plat toi-même en un clic. Tu vois combien de fois chaque plat est regardé et commandé. Tu vois quel plat les gens regardent beaucoup mais commandent peu. Le système te suggère des changements à partir de ces données. Qu'est-ce qui te dérangerait encore ?",
+      "Imagine maintenant que ton restaurant dispose d'un système qui permet :\n\n– aux clients de consulter ton menu sur leur téléphone ;\n– de présenter chaque plat en photo ou en vidéo plein écran ;\n– de recevoir les commandes directement depuis les tables ;\n– de modifier ton menu à tout moment sans réimpression ;\n– de suivre les plats les plus consultés et les plus commandés sans demander aux clients.",
     avecCarrousel: true,
     options: [
-      { id: "rien", label: "Rien, ça me va" },
+      { id: "rien", label: "Rien." },
+      { id: "prix", label: "Le prix." },
+      { id: "mise_en_place", label: "La mise en place." },
+      { id: "prefere_papier", label: "Je préfère le menu papier." },
+      { id: "clients_pas_alaise", label: "Mes clients ne sont pas à l'aise avec le numérique." },
       {
-        id: "oui_derange",
-        label: "Oui, ce qui me dérange :",
+        id: "autre",
+        label: "Autre :",
         texteConditionnel: true,
-        placeholderTexte: "Dis-nous ce qui te dérange",
+        placeholderTexte: "Précise",
       },
     ],
   },
@@ -253,23 +234,25 @@ export const QUESTIONS: Question[] = [
     id: "q16",
     section: "gerant",
     type: "choix_unique",
-    titre: "Après tout ça, qu'est-ce que tu en penses pour ton resto ?",
+    titre: "Si cette solution était disponible aujourd'hui à un tarif adapté à ton restaurant, serais-tu intéressé ?",
     options: [
-      { id: "oui", label: "Oui, je le veux pour mon resto" },
-      { id: "non", label: "Non" },
+      { id: "oui", label: "Oui." },
+      { id: "peut_etre", label: "Peut-être." },
+      { id: "non", label: "Non." },
     ],
   },
   {
     id: "q16_raisons",
     section: "gerant",
     type: "choix_unique",
-    titre: "À cause de :",
+    titre: "Quelle est la principale raison ?",
     dependDe: "q16",
-    valeursRequises: ["non"],
+    valeursRequises: ["non", "peut_etre"],
     options: [
-      { id: "prix", label: "Le prix" },
-      { id: "complique", label: "Trop compliqué à gérer" },
-      { id: "clients_papier", label: "Mes clients sont habitués au papier" },
+      { id: "prix", label: "Le prix." },
+      { id: "pas_interet", label: "Je ne vois pas encore l'intérêt." },
+      { id: "complique", label: "Ça me paraît compliqué." },
+      { id: "clients_papier", label: "Mes clients préfèrent le papier." },
       {
         id: "autre",
         label: "Autre :",
@@ -282,13 +265,14 @@ export const QUESTIONS: Question[] = [
     id: "q17",
     section: "gerant",
     type: "champs_lead",
-    titre:
-      "Tu fais partie des premiers à dire oui. Les premiers inscrits seront les premiers contactés pour l'installation lors de l'ouverture de la plateforme.",
+    titre: "Tu fais partie des premiers restaurateurs intéressés.",
+    description:
+      "Les premiers inscrits seront contactés en priorité pour tester la solution et bénéficier des conditions de lancement.",
     dependDe: "q16",
     valeursRequises: ["oui"],
     champs: [
       { id: "nom_restaurant", label: "Nom du restaurant" },
-      { id: "contact", label: "Ton numéro ou WhatsApp" },
+      { id: "contact", label: "Numéro / WhatsApp" },
       { id: "ville", label: "Ville" },
     ],
   },
@@ -305,7 +289,7 @@ export function parcours(reponses: Record<string, any>): Question[] {
 
   const toutes = [...communes, ...suite];
 
-  // Filtre les questions conditionnelles (q16_raisons, q17) selon la réponse à leur dépendance
+  // Filtre les questions conditionnelles selon la réponse à leur dépendance
   return toutes.filter((q) => {
     if (!q.dependDe) return true;
     const valeur = reponses[q.dependDe];
