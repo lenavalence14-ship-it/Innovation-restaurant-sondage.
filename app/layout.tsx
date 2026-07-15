@@ -25,7 +25,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#1A1410",
+  themeColor: "#FFFFFF",
 };
 
 export default function RootLayout({
@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${fraunces.variable} ${manrope.variable} h-full`}>
-      <body className="h-full bg-[#1A1410] text-[#F5EDE3] font-body overscroll-none">
+      <body className="h-full bg-[#FFFFFF] text-[#050505] font-body overscroll-none">
         {children}
       </body>
     </html>
