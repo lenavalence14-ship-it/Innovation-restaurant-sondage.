@@ -96,18 +96,18 @@ export function Sondage() {
   if (etape === "accueil") {
     return (
       <div className="h-dvh w-full flex flex-col items-center justify-center px-8 text-center">
-        <p className="font-body text-xs uppercase tracking-[0.2em] text-[#E8A33D] mb-4">
+        <p className="font-body text-xs uppercase tracking-[0.2em] text-[#1877F2] mb-4">
           Bienvenue
         </p>
-        <h1 className="font-display font-semibold text-[2rem] leading-[1.2] text-[#F5EDE3] mb-4">
+        <h1 className="font-display font-semibold text-[2rem] leading-[1.2] text-[#050505] mb-4">
           Sondage de modernisation de la restauration africaine
         </h1>
-        <p className="font-body text-[#F5EDE3]/70 mb-10 max-w-sm">
+        <p className="font-body text-[#050505]/70 mb-10 max-w-sm">
           Aide-nous à réinventer le menu de restaurant en Afrique
         </p>
         <button
           onClick={() => setEtape("sondage")}
-          className="w-full max-w-xs rounded-2xl bg-[#E8A33D] text-[#1A1410] font-semibold py-4 active:scale-[0.98] transition-transform"
+          className="w-full max-w-xs rounded-2xl bg-[#1877F2] text-[#FFFFFF] font-semibold py-4 active:scale-[0.98] transition-transform"
         >
           Commencer
         </button>
@@ -121,7 +121,7 @@ export function Sondage() {
         <div className="h-14 w-14 rounded-full bg-[#7A9B76]/20 border border-[#7A9B76]/40 flex items-center justify-center mb-6">
           <span className="text-[#7A9B76] text-2xl">✓</span>
         </div>
-        <h1 className="font-display font-semibold text-[1.6rem] leading-[1.3] text-[#F5EDE3]">
+        <h1 className="font-display font-semibold text-[1.6rem] leading-[1.3] text-[#050505]">
           Merci de votre participation à l&apos;innovation de la restauration africaine
         </h1>
       </div>
@@ -133,9 +133,9 @@ export function Sondage() {
   return (
     <div className="h-dvh w-full overflow-hidden relative flex flex-col">
       {/* Barre de progression fine en haut */}
-      <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#F5EDE3]/10 z-20">
+      <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#050505]/10 z-20">
         <div
-          className="h-full bg-[#E8A33D] transition-all duration-300 ease-out"
+          className="h-full bg-[#1877F2] transition-all duration-300 ease-out"
           style={{ width: `${progression}%` }}
         />
       </div>
