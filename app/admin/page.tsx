@@ -218,4 +218,5 @@ function Stat({ label, valeur }: { label: string; valeur: string }) {
       <p className="font-display font-semibold text-xl text-[#F5EDE3]">{valeur}</p>
     </div>
   );
-}
+      }
+      
