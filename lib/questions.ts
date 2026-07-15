@@ -24,6 +24,14 @@ export type Question = {
   // Réduit la taille du carrousel — utile quand la question a une description
   // longue et/ou beaucoup d'options (ex: Q15), pour éviter que le contenu déborde de l'écran.
   carrouselCompact?: boolean;
+  // Désactive le spacer qui pousse les options vers le bas — utile uniquement
+  // pour les questions à contenu dense (ex: Q15) où ce spacer créerait un grand
+  // vide entre la description et les options. Ne pas activer sur les questions
+  // courtes (comme Q2), qui doivent garder leurs boutons en bas d'écran.
+  collerOptionsApresDescription?: boolean;
+  // Colle les options juste sous la description au lieu de les pousser en bas
+  // de l'écran — utile sur les questions à contenu dense (ex: Q15).
+  optionsCollees?: boolean;
   // Cette question n'apparaît que si la réponse à `dependDe` vaut une des `valeursRequises`
   dependDe?: string;
   valeursRequises?: string[];
@@ -220,6 +228,8 @@ export const QUESTIONS: Question[] = [
       "Imagine maintenant que ton restaurant dispose d'un système qui permet :\n\n– aux clients de consulter ton menu sur leur téléphone ;\n– de présenter chaque plat en photo ou en vidéo plein écran ;\n– de recevoir les commandes directement depuis les tables ;\n– de modifier ton menu à tout moment sans réimpression ;\n– de suivre les plats les plus consultés et les plus commandés sans demander aux clients.",
     avecCarrousel: true,
     carrouselCompact: true,
+    collerOptionsApresDescription: true,
+    optionsCollees: true,
     options: [
       { id: "rien", label: "Rien." },
       { id: "prix", label: "Le prix." },
@@ -297,5 +307,4 @@ export function parcours(reponses: Record<string, any>): Question[] {
     const valeur = reponses[q.dependDe];
     return q.valeursRequises?.includes(valeur);
   });
-    }
-       
+}
