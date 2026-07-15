@@ -35,60 +35,25 @@ export function Sondage() {
   async function sauvegarder(nouvellesReponses: Record<string, any>, complet: boolean) {
     try {
       if (!reponseIdRef.current) {
-        // PREMIÈRE FOIS : INSERT
         reponseIdRef.current = idGenere.current;
         const { error } = await supabase
           .from("reponses")
-          .insert({ 
-            id: idGenere.current, 
-            profil: nouvellesReponses["q1"] ?? "client", 
-            reponses: nouvellesReponses, 
-            complet 
-          });
+          .insert({ id: idGenere.current, profil: nouvellesReponses["q1"] ?? "client", reponses: nouvellesReponses, complet });
         if (error) {
           setDebugMsg(`INSERT a échoué: ${error.message} (code ${error.code})`);
           throw error;
         }
-        setDebugMsg(null);
       } else {
-        // FOIS SUIVANTES : UPDATE avec retry
-        let tentatives = 0;
-        let derniereErreur: any = null;
-        
-        while (tentatives < 3) {
-          tentatives++;
-          const { error, data } = await supabase
-            .from("reponses")
-            .update({
-              reponses: nouvellesReponses,
-              complet,
-              profil: nouvellesReponses["q1"] ?? "client",
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", reponseIdRef.current)
-            .select();
-          
-          if (error) {
-            derniereErreur = error;
-            // Attendre avant de retry
-            await new Promise(resolve => setTimeout(resolve, 200 * tentatives));
-            continue;
-          }
-          
-          if (!data || data.length === 0) {
-            setDebugMsg(
-              `UPDATE exécuté sans erreur mais 0 ligne modifiée pour id=${reponseIdRef.current}. Vérifie la policy RLS UPDATE sur 'reponses'.`
-            );
-            return;
-          }
-          
-          // Succès !
-          setDebugMsg(null);
-          return;
+        const { error } = await supabase.rpc("maj_reponse", {
+          p_id: reponseIdRef.current,
+          p_reponses: nouvellesReponses,
+          p_complet: complet,
+        });
+        if (error) {
+          setDebugMsg(`UPDATE (via fonction) a échoué: ${error.message} (code ${error.code})`);
+          throw error;
         }
-        
-        // Toutes les tentatives ont échoué
-        setDebugMsg(`UPDATE a échoué après ${tentatives} tentatives: ${derniereErreur?.message} (code ${derniereErreur?.code})`);
+        setDebugMsg(null);
       }
 
       // Capture du lead séparément si Q17 vient d'être répondue
@@ -206,4 +171,5 @@ export function Sondage() {
       </div>
     </div>
   );
-}
+          }
+  
