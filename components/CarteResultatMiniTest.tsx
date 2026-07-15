@@ -1,5 +1,6 @@
 "use client";
 
+import { forwardRef } from "react";
 import { ScoresMiniTest, ProfilMiniTest, dimensionsDominantes, pointDeTolerance } from "@/lib/miniTestData";
 
 const BARRES: { cle: keyof ScoresMiniTest; label: string }[] = [
@@ -27,21 +28,20 @@ function BarreScore({ label, valeur }: { label: string; valeur: number }) {
   );
 }
 
-export function CarteResultatMiniTest({
-  prenom,
-  scores,
-  scoreGlobal,
-  profil,
-  pourcentageComparaison,
-  id,
-}: {
-  prenom: string;
-  scores: ScoresMiniTest;
-  scoreGlobal: number;
-  profil: ProfilMiniTest;
-  pourcentageComparaison: number | null; // null tant que masqué (2 premiers participants)
-  id: string; // utilisé comme identifiant DOM pour la capture/export image
-}) {
+export const CarteResultatMiniTest = forwardRef<
+  HTMLDivElement,
+  {
+    prenom: string;
+    scores: ScoresMiniTest;
+    scoreGlobal: number;
+    profil: ProfilMiniTest;
+    pourcentageComparaison: number | null; // null tant que masqué (2 premiers participants)
+    id: string; // utilisé comme identifiant DOM pour la capture/export image
+  }
+>(function CarteResultatMiniTest(
+  { prenom, scores, scoreGlobal, profil, pourcentageComparaison, id },
+  ref
+) {
   const dominantes = dimensionsDominantes(scores);
   const tolerance = pointDeTolerance(scores);
   const etoilesPleines = "⭐".repeat(profil.etoiles);
@@ -49,6 +49,7 @@ export function CarteResultatMiniTest({
 
   return (
     <div
+      ref={ref}
       id={id}
       className="w-full max-w-sm mx-auto rounded-[2rem] p-7 bg-gradient-to-b from-[#0B1220] to-[#050505] border border-white/10 shadow-2xl"
     >
@@ -105,4 +106,4 @@ export function CarteResultatMiniTest({
       )}
     </div>
   );
-}
+});
