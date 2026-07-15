@@ -76,22 +76,49 @@ export default function AdminPage() {
     );
   }
 
-  return <Dashboard data={data} />;
+  return <Dashboard data={data} onReinitialise={() => setData({ reponses: [], leads: [] })} />;
 }
 
-function Dashboard({ data }: { data: Resultats }) {
+function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: () => void }) {
   const { reponses, leads } = data;
   const total = reponses.length;
   const complets = reponses.filter((r) => r.complet).length;
   const tauxCompletion = total ? Math.round((complets / total) * 100) : 0;
   const nbClient = reponses.filter((r) => r.profil === "client").length;
   const nbGerant = reponses.filter((r) => r.profil === "gerant").length;
+  const [suppression, setSuppression] = useState(false);
+
+  async function reinitialiser() {
+    const confirmation = window.confirm(
+      `Supprimer définitivement les ${total} réponse${total > 1 ? "s" : ""} et ${leads.length} lead${leads.length > 1 ? "s" : ""} ? Cette action est IRRÉVERSIBLE.`
+    );
+    if (!confirmation) return;
+
+    setSuppression(true);
+    const res = await fetch("/api/admin/reinitialiser", { method: "POST" });
+    setSuppression(false);
+
+    if (!res.ok) {
+      alert("Échec de la réinitialisation. Réessaie ou vérifie ta connexion.");
+      return;
+    }
+    onReinitialise();
+  }
 
   return (
     <div className="min-h-dvh w-full px-5 py-8 max-w-3xl mx-auto">
-      <h1 className="font-display font-semibold text-2xl text-[#F5EDE3] mb-1">
-        Résultats du sondage
-      </h1>
+      <div className="flex items-start justify-between mb-1 gap-3">
+        <h1 className="font-display font-semibold text-2xl text-[#F5EDE3]">
+          Résultats du sondage
+        </h1>
+        <button
+          onClick={reinitialiser}
+          disabled={suppression || total === 0}
+          className="shrink-0 rounded-lg border border-red-400/30 text-red-400 text-xs px-3 py-2 disabled:opacity-30"
+        >
+          {suppression ? "Suppression…" : "Tout réinitialiser"}
+        </button>
+      </div>
       <p className="text-[#F5EDE3]/50 text-sm mb-8">
         {total} participation{total > 1 ? "s" : ""} enregistrée{total > 1 ? "s" : ""}
       </p>
