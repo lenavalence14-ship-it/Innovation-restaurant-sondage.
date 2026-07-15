@@ -55,7 +55,9 @@ export function CarteQuestion({
     <div
       ref={verifierScroll}
       onScroll={(e) => verifierScroll(e.currentTarget)}
-      className="h-full w-full flex flex-col px-6 pt-6 pb-10 overflow-y-auto relative"
+      className={`w-full flex flex-col px-6 pt-6 pb-10 overflow-y-auto relative ${
+        question.collerOptionsApresDescription ? "" : "h-full"
+      }`}
     >
       {question.avecCarrousel && <Carrousel profil={profil} compact={question.carrouselCompact} />}
 
