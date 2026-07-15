@@ -226,8 +226,7 @@ export const QUESTIONS: Question[] = [
     titre: "Qu'est-ce qui te ferait encore hésiter à utiliser ce système ?",
     description:
       "Imagine maintenant que ton restaurant dispose d'un système qui permet :\n\n– aux clients de consulter ton menu sur leur téléphone ;\n– de présenter chaque plat en photo ou en vidéo plein écran ;\n– de recevoir les commandes directement depuis les tables ;\n– de modifier ton menu à tout moment sans réimpression ;\n– de suivre les plats les plus consultés et les plus commandés sans demander aux clients.",
-    avecCarrousel: true,
-    carrouselCompact: true,
+    avecCarrousel: false,
     collerOptionsApresDescription: true,
     optionsCollees: true,
     options: [
