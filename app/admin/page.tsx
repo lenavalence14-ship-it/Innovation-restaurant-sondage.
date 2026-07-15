@@ -3,6 +3,12 @@
 import { useEffect, useState } from "react";
 import { QUESTIONS } from "@/lib/questions";
 
+// IDs des questions dont la réponse est un texte libre écrit par l'utilisateur
+// (à ne pas confondre avec q1 par ex., qui est une string "client"/"gerant" issue d'un choix).
+const IDS_TEXTE_COURT = new Set(
+  QUESTIONS.filter((q) => q.type === "texte_court").map((q) => q.id)
+);
+
 type Resultats = {
   reponses: any[];
   leads: any[];
@@ -195,14 +201,27 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
       <div className="flex flex-col gap-2 pb-10">
         {reponses.flatMap((r) =>
           Object.entries(r.reponses ?? {})
-            .filter(([, v]: [string, any]) => typeof v === "object" && v?.texte)
-            .map(([qId, v]: [string, any]) => (
+            .map(([qId, v]: [string, any]) => {
+              // Deux formats possibles pour une réponse texte libre :
+              // 1. Une string simple, MAIS seulement pour les questions de type
+              //    "texte_court" (ex: q14) — sinon on capterait aussi q1 ("client"/"gerant").
+              // 2. Un objet { texte: "..." } (option avec texteConditionnel, ex: q15/q17)
+              if (IDS_TEXTE_COURT.has(qId) && typeof v === "string" && v.trim().length > 0) {
+                return { qId, texte: v };
+              }
+              if (typeof v === "object" && v !== null && typeof v.texte === "string" && v.texte.trim().length > 0) {
+                return { qId, texte: v.texte };
+              }
+              return null;
+            })
+            .filter((x): x is { qId: string; texte: string } => x !== null)
+            .map(({ qId, texte }) => (
               <div
                 key={r.id + qId}
                 className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-3 text-sm"
               >
                 <span className="text-[#E8A33D]/80 text-xs uppercase">{qId}</span>
-                <p className="text-[#F5EDE3]/90 mt-1">{v.texte}</p>
+                <p className="text-[#F5EDE3]/90 mt-1">{texte}</p>
               </div>
             ))
         )}
@@ -218,5 +237,5 @@ function Stat({ label, valeur }: { label: string; valeur: string }) {
       <p className="font-display font-semibold text-xl text-[#F5EDE3]">{valeur}</p>
     </div>
   );
-      }
-      
+                        }
+  
