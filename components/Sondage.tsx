@@ -5,8 +5,9 @@ import { parcours, Profil } from "@/lib/questions";
 import { CarteQuestion } from "./CarteQuestion";
 import { useSwipeNav } from "@/lib/useSwipeNav";
 import { supabase } from "@/lib/supabaseClient";
+import { MiniTest } from "./MiniTest";
 
-type Etape = "accueil" | "sondage" | "fin";
+type Etape = "accueil" | "sondage" | "fin" | "miniTest";
 
 export function Sondage() {
   const [etape, setEtape] = useState<Etape>("accueil");
@@ -14,6 +15,9 @@ export function Sondage() {
   const [reponses, setReponses] = useState<Record<string, any>>({});
   const [index, setIndex] = useState(0);
   const reponseIdRef = useRef<string | null>(null);
+  // Miroir en state de reponseIdRef.current : nécessaire pour l'utiliser dans le JSX
+  // (accéder à ref.current pendant le render est interdit par React, voir règle react-hooks/refs).
+  const [reponseId, setReponseId] = useState<string | null>(null);
   // DEBUG TEMPORAIRE — à retirer une fois le bug de sauvegarde confirmé/corrigé.
   const [debugMsg, setDebugMsg] = useState<string | null>(null);
 
@@ -36,6 +40,7 @@ export function Sondage() {
     try {
       if (!reponseIdRef.current) {
         reponseIdRef.current = idGenere.current;
+        setReponseId(idGenere.current);
         const { error } = await supabase
           .from("reponses")
           .insert({ id: idGenere.current, profil: nouvellesReponses["q1"] ?? "client", reponses: nouvellesReponses, complet });
@@ -121,11 +126,33 @@ export function Sondage() {
         <div className="h-14 w-14 rounded-full bg-[#7A9B76]/20 border border-[#7A9B76]/40 flex items-center justify-center mb-6">
           <span className="text-[#7A9B76] text-2xl">✓</span>
         </div>
-        <h1 className="font-display font-semibold text-[1.6rem] leading-[1.3] text-[#050505]">
+        <h1 className="font-display font-semibold text-[1.6rem] leading-[1.3] text-[#050505] mb-8">
           Merci de votre participation à l&apos;innovation de la restauration africaine
         </h1>
+
+        {/* Mini-test viral : uniquement pour les clients, jamais pour les gérants
+            (cahier des charges §2 + confirmation capture 3). Optionnel, placé en haut visuellement
+            via l'ordre du flux : c'est ce que l'utilisateur voit juste après le message de fin. */}
+        {profil === "client" && reponseId && (
+          <div className="w-full max-w-xs rounded-2xl bg-[#F0F2F5] p-5">
+            <p className="font-body font-semibold text-[#050505] mb-1">
+              🎉 Découvre maintenant ton niveau d&apos;exigence au restaurant
+            </p>
+            <p className="font-body text-[#050505]/60 text-sm mb-4">⏱️ 30 secondes chrono.</p>
+            <button
+              onClick={() => setEtape("miniTest")}
+              className="w-full rounded-2xl bg-[#1877F2] text-white font-semibold py-3.5 active:scale-[0.98] transition-transform"
+            >
+              Commencer le mini-test
+            </button>
+          </div>
+        )}
       </div>
     );
+  }
+
+  if (etape === "miniTest" && reponseId) {
+    return <MiniTest reponseId={reponseId} onPasser={() => setEtape("fin")} />;
   }
 
   const progression = ((index + 1) / questions.length) * 100;
