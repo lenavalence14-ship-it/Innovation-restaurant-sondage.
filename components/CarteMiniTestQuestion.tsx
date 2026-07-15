@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { QuestionMiniTest } from "@/lib/miniTestData";
 
-// Couleurs façon UNO — une par position d'option (jusqu'à 3 options par question ici).
-const COULEURS = [
-  { bg: "bg-[#EF4444]", border: "border-[#EF4444]" }, // rouge
-  { bg: "bg-[#F59E0B]", border: "border-[#F59E0B]" }, // jaune/orange
-  { bg: "bg-[#1877F2]", border: "border-[#1877F2]" }, // bleu
+// Vraies couleurs UNO — pleines dès le repos, pas seulement au clic.
+// Une couleur fixe par position (1ère option = rouge, 2e = jaune, 3e = bleu),
+// pour que l'oeil associe une couleur à une intensité de réponse d'un coup d'oeil.
+const COULEURS_UNO = [
+  { fond: "#E4483C", ombre: "#B8321F" }, // rouge UNO
+  { fond: "#F5B02E", ombre: "#C88418" }, // jaune UNO
+  { fond: "#1877F2", ombre: "#0F5AC2" }, // bleu (couleur de marque du sondage)
 ];
 
 export function CarteMiniTestQuestion({
@@ -35,35 +37,43 @@ export function CarteMiniTestQuestion({
   }
 
   return (
-    <div className="h-full w-full flex flex-col px-6 pt-8 pb-10">
-      <p className="font-body text-xs uppercase tracking-[0.2em] text-[#1877F2] mb-6 text-center">
+    <div className="h-full w-full flex flex-col px-5 pt-8 pb-6 bg-[#0B1220]">
+      <p className="font-body text-xs uppercase tracking-[0.2em] text-white/50 mb-4 text-center">
         Question {numero} / {total}
       </p>
 
-      <h1 className="font-display font-semibold text-[1.3rem] leading-[1.3] text-[#050505] text-center mb-10">
+      <h1 className="font-display font-semibold text-[1.15rem] leading-[1.3] text-white text-center mb-8 px-2">
         {question.titre}
       </h1>
 
-      <div className="flex-1 flex flex-col gap-4 justify-center">
+      <div className="flex-1 flex items-center justify-center gap-3">
         {question.options.map((opt, i) => {
           const active = optionValidee === opt.id;
-          const couleur = COULEURS[i % COULEURS.length];
+          const inactive = optionValidee !== null && !active;
+          const couleur = COULEURS_UNO[i % COULEURS_UNO.length];
+
           return (
             <button
               key={opt.id}
               onClick={() => choisir(opt.id, opt.points)}
-              className={`w-full rounded-3xl px-5 py-6 border-2 transition-all duration-200 flex items-center gap-4 ${
-                active
-                  ? `${couleur.bg} ${couleur.border} scale-[0.96] text-white`
-                  : "bg-white border-[#050505]/10 active:scale-[0.97]"
-              }`}
+              disabled={optionValidee !== null}
+              style={{
+                backgroundColor: couleur.fond,
+                boxShadow: active
+                  ? `0 0 0 4px white, 0 8px 24px ${couleur.ombre}80`
+                  : `0 6px 0 ${couleur.ombre}`,
+              }}
+              className={`relative flex-1 aspect-[3/4.2] rounded-2xl flex flex-col items-center justify-center gap-3 px-2 transition-all duration-200 ${
+                active ? "scale-[1.06] -translate-y-1" : "active:scale-[0.95] active:translate-y-1"
+              } ${inactive ? "opacity-30 scale-[0.94]" : ""}`}
             >
-              <span className="text-3xl shrink-0">{opt.emoji}</span>
-              <span
-                className={`font-body font-semibold text-[0.95rem] text-left leading-snug ${
-                  active ? "text-white" : "text-[#050505]"
-                }`}
-              >
+              {/* Ovale central façon carte UNO */}
+              <div
+                className="absolute inset-2 rounded-xl border-2 border-white/25"
+                style={{ transform: "rotate(-8deg)" }}
+              />
+              <span className="text-4xl relative z-10 drop-shadow-sm">{opt.emoji}</span>
+              <span className="font-body font-bold text-[0.72rem] leading-tight text-white text-center relative z-10 drop-shadow-sm">
                 {opt.texte}
               </span>
             </button>
