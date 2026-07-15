@@ -53,7 +53,7 @@ export function CarteQuestion({
       </h1>
 
       {question.description && (
-        <p className="font-body text-[0.85rem] leading-relaxed text-[#050505]/70 mb-5">
+        <p className="font-body text-[0.85rem] leading-relaxed text-[#050505]/70 mb-5 whitespace-pre-line">
           {question.description}
         </p>
       )}
