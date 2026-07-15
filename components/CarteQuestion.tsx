@@ -18,6 +18,13 @@ export function CarteQuestion({
   const [optionValidee, setOptionValidee] = useState<string | null>(null);
   const [texteLibre, setTexteLibre] = useState("");
   const [champs, setChamps] = useState<Record<string, string>>({});
+  const [peutEncoreScroller, setPeutEncoreScroller] = useState(false);
+
+  function verifierScroll(el: HTMLDivElement | null) {
+    if (!el) return;
+    const resteAScroller = el.scrollHeight - el.scrollTop - el.clientHeight > 12;
+    setPeutEncoreScroller(resteAScroller);
+  }
 
   function choisir(optionId: string, avecTexte: boolean) {
     if (avecTexte) {
@@ -45,8 +52,12 @@ export function CarteQuestion({
   }
 
   return (
-    <div className="h-full w-full flex flex-col px-6 pt-6 pb-10 overflow-y-auto">
-      {question.avecCarrousel && <Carrousel profil={profil} />}
+    <div
+      ref={verifierScroll}
+      onScroll={(e) => verifierScroll(e.currentTarget)}
+      className="h-full w-full flex flex-col px-6 pt-6 pb-10 overflow-y-auto relative"
+    >
+      {question.avecCarrousel && <Carrousel profil={profil} compact={question.carrouselCompact} />}
 
       <h1 className="font-display font-semibold text-[1.25rem] leading-[1.25] text-[#050505] mb-2">
         {question.titre}
@@ -58,10 +69,13 @@ export function CarteQuestion({
         </p>
       )}
 
-      <div className="flex-1" />
+      {/* Spacer flexible : pousse les options en bas seulement s'il y a de la place.
+          Sur les questions avec description longue + plusieurs options (ex: Q15),
+          ce spacer s'écrase naturellement à 0 plutôt que de pousser les options hors écran. */}
+      <div className="flex-1 min-h-4" />
 
       {question.type === "choix_unique" && (
-        <div className="flex flex-col gap-3 mt-4">
+        <div className="flex flex-col gap-3 mt-4 pb-6">
           {question.options?.map((opt) => {
             const active = optionValidee === opt.id;
             return (
@@ -132,6 +146,16 @@ export function CarteQuestion({
           >
             Envoyer
           </button>
+        </div>
+      )}
+
+      {/* Indique qu'il reste du contenu à scroller — évite qu'un utilisateur
+          pense avoir vu toutes les options alors qu'il en manque en dessous. */}
+      {peutEncoreScroller && (
+        <div className="pointer-events-none sticky bottom-0 left-0 right-0 h-16 -mt-16 bg-gradient-to-t from-[#FFFFFF] to-transparent flex items-end justify-center pb-1">
+          <span className="text-[#1877F2] text-xs font-semibold animate-bounce">
+            ↓ fais défiler
+          </span>
         </div>
       )}
     </div>
