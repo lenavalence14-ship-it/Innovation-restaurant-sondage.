@@ -51,7 +51,7 @@ export default function AdminPage() {
     return (
       <div className="h-dvh w-full flex items-center justify-center px-6">
         <form onSubmit={seConnecter} className="w-full max-w-sm flex flex-col gap-4">
-          <h1 className="font-display font-semibold text-xl text-[#F5EDE3] mb-2">
+          <h1 className="font-display font-semibold text-xl text-[#050505] mb-2">
             Espace administrateur
           </h1>
           <input
@@ -60,12 +60,12 @@ export default function AdminPage() {
             value={motDePasse}
             onChange={(e) => setMotDePasse(e.target.value)}
             placeholder="Mot de passe"
-            className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 px-4 py-3.5 text-[#F5EDE3] placeholder:text-[#F5EDE3]/40 focus:outline-none focus:border-[#E8A33D]"
+            className="rounded-xl bg-[#F0F2F5] border border-[#050505]/10 px-4 py-3.5 text-[#050505] placeholder:text-[#050505]/55 focus:outline-none focus:border-[#1877F2]"
           />
           {erreur && <p className="text-sm text-red-400">{erreur}</p>}
           <button
             disabled={chargement}
-            className="rounded-xl bg-[#E8A33D] text-[#1A1410] font-semibold py-3.5 disabled:opacity-50"
+            className="rounded-xl bg-[#1877F2] text-[#FFFFFF] font-semibold py-3.5 disabled:opacity-50"
           >
             {chargement ? "Connexion…" : "Entrer"}
           </button>
@@ -77,7 +77,7 @@ export default function AdminPage() {
   if (!data) {
     return (
       <div className="h-dvh w-full flex items-center justify-center">
-        <p className="text-[#F5EDE3]/60">Chargement des résultats…</p>
+        <p className="text-[#050505]/60">Chargement des résultats…</p>
       </div>
     );
   }
@@ -115,7 +115,7 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
   return (
     <div className="min-h-dvh w-full px-5 py-8 max-w-3xl mx-auto">
       <div className="flex items-start justify-between mb-1 gap-3">
-        <h1 className="font-display font-semibold text-2xl text-[#F5EDE3]">
+        <h1 className="font-display font-semibold text-2xl text-[#050505]">
           Résultats du sondage
         </h1>
         <button
@@ -126,7 +126,7 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
           {suppression ? "Suppression…" : "Tout réinitialiser"}
         </button>
       </div>
-      <p className="text-[#F5EDE3]/50 text-sm mb-8">
+      <p className="text-[#050505]/50 text-sm mb-8">
         {total} participation{total > 1 ? "s" : ""} enregistrée{total > 1 ? "s" : ""}
       </p>
 
@@ -137,22 +137,22 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
         <Stat label="Profil gérant" valeur={`${nbGerant}`} />
       </div>
 
-      <h2 className="font-display font-semibold text-lg text-[#F5EDE3] mb-3">
+      <h2 className="font-display font-semibold text-lg text-[#050505] mb-3">
         Leads gérants intéressés ({leads.length})
       </h2>
       <div className="flex flex-col gap-2 mb-10">
         {leads.length === 0 && (
-          <p className="text-[#F5EDE3]/40 text-sm">Aucun lead pour l&apos;instant.</p>
+          <p className="text-[#050505]/55 text-sm">Aucun lead pour l&apos;instant.</p>
         )}
         {leads.map((l) => (
-          <div key={l.id} className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-4">
-            <p className="font-semibold text-[#F5EDE3]">{l.nom_restaurant}</p>
-            <p className="text-sm text-[#F5EDE3]/70">{l.contact} · {l.ville}</p>
+          <div key={l.id} className="rounded-xl bg-[#F0F2F5] border border-[#050505]/10 p-4">
+            <p className="font-semibold text-[#050505]">{l.nom_restaurant}</p>
+            <p className="text-sm text-[#050505]/70">{l.contact} · {l.ville}</p>
           </div>
         ))}
       </div>
 
-      <h2 className="font-display font-semibold text-lg text-[#F5EDE3] mb-3">
+      <h2 className="font-display font-semibold text-lg text-[#050505] mb-3">
         Résultats par question
       </h2>
       <div className="flex flex-col gap-6">
@@ -168,21 +168,21 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
           if (totalQ === 0) return null;
 
           return (
-            <div key={q.id} className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-4">
-              <p className="font-medium text-[#F5EDE3] mb-3 text-sm">{q.titre}</p>
+            <div key={q.id} className="rounded-xl bg-[#F0F2F5] border border-[#050505]/10 p-4">
+              <p className="font-medium text-[#050505] mb-3 text-sm">{q.titre}</p>
               <div className="flex flex-col gap-2">
                 {q.options?.map((opt) => {
                   const n = comptes[opt.id] ?? 0;
                   const pct = totalQ ? Math.round((n / totalQ) * 100) : 0;
                   return (
                     <div key={opt.id}>
-                      <div className="flex justify-between text-xs text-[#F5EDE3]/70 mb-1">
+                      <div className="flex justify-between text-xs text-[#050505]/70 mb-1">
                         <span>{opt.label}</span>
                         <span>{pct}% ({n})</span>
                       </div>
-                      <div className="h-2 rounded-full bg-[#1A1410] overflow-hidden">
+                      <div className="h-2 rounded-full bg-[#FFFFFF] overflow-hidden">
                         <div
-                          className="h-full bg-[#E8A33D]"
+                          className="h-full bg-[#1877F2]"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -195,7 +195,7 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
         })}
       </div>
 
-      <h2 className="font-display font-semibold text-lg text-[#F5EDE3] mt-10 mb-3">
+      <h2 className="font-display font-semibold text-lg text-[#050505] mt-10 mb-3">
         Réponses texte libres
       </h2>
       <div className="flex flex-col gap-2 pb-10">
@@ -218,10 +218,10 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
             .map(({ qId, texte }) => (
               <div
                 key={r.id + qId}
-                className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-3 text-sm"
+                className="rounded-xl bg-[#F0F2F5] border border-[#050505]/10 p-3 text-sm"
               >
-                <span className="text-[#E8A33D]/80 text-xs uppercase">{qId}</span>
-                <p className="text-[#F5EDE3]/90 mt-1">{texte}</p>
+                <span className="text-[#1877F2]/80 text-xs uppercase">{qId}</span>
+                <p className="text-[#050505]/90 mt-1">{texte}</p>
               </div>
             ))
         )}
@@ -232,10 +232,9 @@ function Dashboard({ data, onReinitialise }: { data: Resultats; onReinitialise: 
 
 function Stat({ label, valeur }: { label: string; valeur: string }) {
   return (
-    <div className="rounded-xl bg-[#2A2018] border border-[#F5EDE3]/10 p-4">
-      <p className="text-[#F5EDE3]/50 text-xs mb-1">{label}</p>
-      <p className="font-display font-semibold text-xl text-[#F5EDE3]">{valeur}</p>
+    <div className="rounded-xl bg-[#F0F2F5] border border-[#050505]/10 p-4">
+      <p className="text-[#050505]/50 text-xs mb-1">{label}</p>
+      <p className="font-display font-semibold text-xl text-[#050505]">{valeur}</p>
     </div>
   );
-                        }
-  
+}
