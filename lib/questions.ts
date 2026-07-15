@@ -223,9 +223,7 @@ export const QUESTIONS: Question[] = [
     options: [
       { id: "rien", label: "Rien." },
       { id: "prix", label: "Le prix." },
-      { id: "mise_en_place", label: "La mise en place." },
       { id: "prefere_papier", label: "Je préfère le menu papier." },
-      { id: "clients_pas_alaise", label: "Mes clients ne sont pas à l'aise avec le numérique." },
       {
         id: "autre",
         label: "Autre :",
@@ -299,4 +297,5 @@ export function parcours(reponses: Record<string, any>): Question[] {
     const valeur = reponses[q.dependDe];
     return q.valeursRequises?.includes(valeur);
   });
-}
+    }
+       
