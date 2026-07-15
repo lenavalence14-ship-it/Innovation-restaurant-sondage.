@@ -154,7 +154,7 @@ export function Sondage() {
         onTouchEnd={handlers.onTouchEnd}
       >
         <div
-          className="h-full w-full"
+          className={questionActuelle.collerOptionsApresDescription ? "w-full" : "h-full w-full"}
           style={{
             transform: `translateY(${offset}px)`,
             transition: enTransition ? "transform 260ms cubic-bezier(0.22,1,0.36,1)" : "none",
