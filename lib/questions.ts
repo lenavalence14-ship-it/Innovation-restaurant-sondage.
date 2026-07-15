@@ -21,6 +21,9 @@ export type Question = {
   options?: ChoixOption[];
   // Affiche le carrousel d'images associé au profil courant
   avecCarrousel?: boolean;
+  // Réduit la taille du carrousel — utile quand la question a une description
+  // longue et/ou beaucoup d'options (ex: Q15), pour éviter que le contenu déborde de l'écran.
+  carrouselCompact?: boolean;
   // Cette question n'apparaît que si la réponse à `dependDe` vaut une des `valeursRequises`
   dependDe?: string;
   valeursRequises?: string[];
@@ -216,6 +219,7 @@ export const QUESTIONS: Question[] = [
     description:
       "Imagine maintenant que ton restaurant dispose d'un système qui permet :\n\n– aux clients de consulter ton menu sur leur téléphone ;\n– de présenter chaque plat en photo ou en vidéo plein écran ;\n– de recevoir les commandes directement depuis les tables ;\n– de modifier ton menu à tout moment sans réimpression ;\n– de suivre les plats les plus consultés et les plus commandés sans demander aux clients.",
     avecCarrousel: true,
+    carrouselCompact: true,
     options: [
       { id: "rien", label: "Rien." },
       { id: "prix", label: "Le prix." },
