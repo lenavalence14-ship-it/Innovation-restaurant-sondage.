@@ -1,0 +1,30 @@
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { supabaseServer } from "@/lib/supabaseServer";
+import { tokenValide, COOKIE_NAME } from "@/lib/adminSession";
+
+export async function POST(req: NextRequest) {
+  const cookieStore = await cookies();
+  const session = cookieStore.get(COOKIE_NAME);
+
+  if (!tokenValide(session?.value)) {
+    return NextResponse.json({ erreur: "Non autorisé." }, { status: 401 });
+  }
+
+  const supabase = supabaseServer();
+
+  // On supprime les leads d'abord (ils référencent reponses via reponse_id),
+  // puis les réponses, pour respecter une éventuelle contrainte de clé
+  // étrangère et ne pas laisser de leads orphelins.
+  const leadsRes = await supabase.from("leads").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  if (leadsRes.error) {
+    return NextResponse.json({ erreur: leadsRes.error.message }, { status: 500 });
+  }
+
+  const reponsesRes = await supabase.from("reponses").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  if (reponsesRes.error) {
+    return NextResponse.json({ erreur: reponsesRes.error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
+}
