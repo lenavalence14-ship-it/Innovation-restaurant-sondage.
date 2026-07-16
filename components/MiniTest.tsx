@@ -30,23 +30,45 @@ export function MiniTest({ reponseId, onPasser }: { reponseId: string; onPasser:
 
   const refCarte = useRef<HTMLDivElement>(null);
   const [telechargement, setTelechargement] = useState(false);
+  const [erreurTelechargement, setErreurTelechargement] = useState<string | null>(null);
 
   async function telechargerCarte() {
     if (!refCarte.current || telechargement) return;
     setTelechargement(true);
+    setErreurTelechargement(null);
     try {
-      const html2canvas = (await import("html2canvas")).default;
+      // html2canvas-pro (fork de html2canvas) au lieu de html2canvas :
+      // la version normale plante silencieusement sur les couleurs oklch()
+      // générées par Tailwind v4 (ex: bg-gradient-to-b), ce qui bloquait
+      // le téléchargement sans aucune erreur visible.
+      const html2canvas = (await import("html2canvas-pro")).default;
       const canvas = await html2canvas(refCarte.current, {
         backgroundColor: null,
-        scale: 3, // haute résolution pour un partage net sur les réseaux
+        scale: 2, // réduit de 3 à 2 : suffisant pour un partage net, évite les plantages
+                  // silencieux sur mobile liés à une image trop lourde en mémoire.
       });
-      const lien = document.createElement("a");
-      lien.download = `${prenom || "profil"}-niveau-exigence-restaurant.png`;
-      lien.href = canvas.toDataURL("image/png");
-      lien.click();
+
+      // toBlob (async, sans limite de taille de string) au lieu de toDataURL
+      // (peut échouer silencieusement sur mobile pour les images de cette taille).
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          setErreurTelechargement("Impossible de générer l'image, réessaie.");
+          setTelechargement(false);
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const lien = document.createElement("a");
+        lien.download = `${prenom || "profil"}-niveau-exigence-restaurant.png`;
+        lien.href = url;
+        document.body.appendChild(lien);
+        lien.click();
+        document.body.removeChild(lien);
+        URL.revokeObjectURL(url);
+        setTelechargement(false);
+      }, "image/png");
     } catch (e) {
       console.error("Erreur téléchargement carte", e);
-    } finally {
+      setErreurTelechargement("Le téléchargement a échoué, réessaie.");
       setTelechargement(false);
     }
   }
@@ -224,6 +246,10 @@ export function MiniTest({ reponseId, onPasser }: { reponseId: string; onPasser:
             {telechargement ? "..." : "⬇️ Télécharger"}
           </button>
         </div>
+
+        {erreurTelechargement && (
+          <p className="text-red-500 text-xs mt-3 text-center">{erreurTelechargement}</p>
+        )}
       </div>
     );
   }
@@ -387,4 +413,5 @@ function EcranPartage() {
     </div>
   );
         }
-        
+
+    
