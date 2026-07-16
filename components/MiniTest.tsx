@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   QUESTIONS_MINI_TEST,
   ScoresMiniTest,
@@ -27,6 +27,29 @@ export function MiniTest({ reponseId, onPasser }: { reponseId: string; onPasser:
     scoreGlobal: number;
     pourcentage: number | null;
   } | null>(null);
+
+  const refCarte = useRef<HTMLDivElement>(null);
+  const [telechargement, setTelechargement] = useState(false);
+
+  async function telechargerCarte() {
+    if (!refCarte.current || telechargement) return;
+    setTelechargement(true);
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(refCarte.current, {
+        backgroundColor: null,
+        scale: 3, // haute résolution pour un partage net sur les réseaux
+      });
+      const lien = document.createElement("a");
+      lien.download = `${prenom || "profil"}-niveau-exigence-restaurant.png`;
+      lien.href = canvas.toDataURL("image/png");
+      lien.click();
+    } catch (e) {
+      console.error("Erreur téléchargement carte", e);
+    } finally {
+      setTelechargement(false);
+    }
+  }
 
   const questionActuelle = QUESTIONS_MINI_TEST[index];
 
@@ -177,6 +200,7 @@ export function MiniTest({ reponseId, onPasser }: { reponseId: string; onPasser:
         </h1>
 
         <CarteResultatMiniTest
+          ref={refCarte}
           id="carte-resultat-mini-test"
           prenom={prenom}
           scores={resultat.scores}
@@ -185,12 +209,19 @@ export function MiniTest({ reponseId, onPasser }: { reponseId: string; onPasser:
           pourcentageComparaison={resultat.pourcentage}
         />
 
-        <div className="w-full max-w-sm mt-6 flex flex-col gap-3">
+        <div className="w-full max-w-sm mt-6 grid grid-cols-2 gap-3">
           <button
             onClick={() => setEtape("defi")}
             className="w-full rounded-2xl bg-[#1877F2] text-white font-semibold py-4 active:scale-[0.98] transition-transform"
           >
-            🎯 Défier un ami
+            🎯 Défier
+          </button>
+          <button
+            onClick={telechargerCarte}
+            disabled={telechargement}
+            className="w-full rounded-2xl bg-white text-[#050505] font-semibold py-4 border border-[#050505]/10 active:scale-[0.98] transition-transform disabled:opacity-50"
+          >
+            {telechargement ? "..." : "⬇️ Télécharger"}
           </button>
         </div>
       </div>
@@ -355,4 +386,5 @@ function EcranPartage() {
       </button>
     </div>
   );
-}
+        }
+        
