@@ -456,7 +456,7 @@ function EcranPartage({
         disabled={enCours !== null}
         className="w-full max-w-xs rounded-2xl bg-gradient-to-r from-[#F5B02E] to-[#E4483C] text-white font-semibold py-4 active:scale-[0.98] transition-transform mb-3 disabled:opacity-50"
       >
-        {enCours === "story" ? "..." : "🎬 Met ta carte en story"}
+        {enCours === "story" ? "..." : "🎬 Mettre en story"}
       </button>
       <button
         onClick={copierLien}
