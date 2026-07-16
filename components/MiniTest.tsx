@@ -31,44 +31,55 @@ export function MiniTest({ reponseId, onPasser }: { reponseId: string; onPasser:
   const refCarte = useRef<HTMLDivElement>(null);
   const [telechargement, setTelechargement] = useState(false);
   const [erreurTelechargement, setErreurTelechargement] = useState<string | null>(null);
+  // Image de la carte générée une fois, réutilisée pour le téléchargement ET le
+  // partage (évite de regénérer le canvas deux fois pour la même carte).
+  const [imageCarteBlob, setImageCarteBlob] = useState<Blob | null>(null);
+
+  // html2canvas-pro (fork de html2canvas) au lieu de html2canvas : la version
+  // normale plante silencieusement sur les couleurs oklch() générées par
+  // Tailwind v4 (ex: bg-gradient-to-b), ce qui bloquait le téléchargement
+  // sans aucune erreur visible.
+  async function genererImageCarte(): Promise<Blob | null> {
+    if (imageCarteBlob) return imageCarteBlob; // déjà générée, pas de recalcul
+    if (!refCarte.current) return null;
+
+    const html2canvas = (await import("html2canvas-pro")).default;
+    const canvas = await html2canvas(refCarte.current, {
+      backgroundColor: null,
+      scale: 2, // réduit de 3 à 2 : suffisant pour un partage net, évite les plantages
+                // silencieux sur mobile liés à une image trop lourde en mémoire.
+    });
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (blob) setImageCarteBlob(blob);
+        resolve(blob);
+      }, "image/png");
+    });
+  }
 
   async function telechargerCarte() {
-    if (!refCarte.current || telechargement) return;
+    if (telechargement) return;
     setTelechargement(true);
     setErreurTelechargement(null);
     try {
-      // html2canvas-pro (fork de html2canvas) au lieu de html2canvas :
-      // la version normale plante silencieusement sur les couleurs oklch()
-      // générées par Tailwind v4 (ex: bg-gradient-to-b), ce qui bloquait
-      // le téléchargement sans aucune erreur visible.
-      const html2canvas = (await import("html2canvas-pro")).default;
-      const canvas = await html2canvas(refCarte.current, {
-        backgroundColor: null,
-        scale: 2, // réduit de 3 à 2 : suffisant pour un partage net, évite les plantages
-                  // silencieux sur mobile liés à une image trop lourde en mémoire.
-      });
-
-      // toBlob (async, sans limite de taille de string) au lieu de toDataURL
-      // (peut échouer silencieusement sur mobile pour les images de cette taille).
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          setErreurTelechargement("Impossible de générer l'image, réessaie.");
-          setTelechargement(false);
-          return;
-        }
-        const url = URL.createObjectURL(blob);
-        const lien = document.createElement("a");
-        lien.download = `${prenom || "profil"}-niveau-exigence-restaurant.png`;
-        lien.href = url;
-        document.body.appendChild(lien);
-        lien.click();
-        document.body.removeChild(lien);
-        URL.revokeObjectURL(url);
-        setTelechargement(false);
-      }, "image/png");
+      const blob = await genererImageCarte();
+      if (!blob) {
+        setErreurTelechargement("Impossible de générer l'image, réessaie.");
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const lien = document.createElement("a");
+      lien.download = `${prenom || "profil"}-niveau-exigence-restaurant.png`;
+      lien.href = url;
+      document.body.appendChild(lien);
+      lien.click();
+      document.body.removeChild(lien);
+      URL.revokeObjectURL(url);
     } catch (e) {
       console.error("Erreur téléchargement carte", e);
       setErreurTelechargement("Le téléchargement a échoué, réessaie.");
+    } finally {
       setTelechargement(false);
     }
   }
@@ -264,7 +275,7 @@ export function MiniTest({ reponseId, onPasser }: { reponseId: string; onPasser:
   }
 
   if (etape === "partage") {
-    return <EcranPartage />;
+    return <EcranPartage prenom={prenom} genererImageCarte={genererImageCarte} />;
   }
 
   return null;
@@ -372,19 +383,54 @@ function EcranDefi({
 // (page d'accueil normale). Il n'y a pas de page de défi dédiée : l'ami qui clique
 // refait tout le parcours (sondage → mini-test → sa propre carte), puis les deux
 // comparent leurs cartes manuellement, en dehors du système (WhatsApp, Instagram...).
-function EcranPartage() {
+function EcranPartage({
+  prenom,
+  genererImageCarte,
+}: {
+  prenom: string;
+  genererImageCarte: () => Promise<Blob | null>;
+}) {
+  const [enCours, setEnCours] = useState<"defi" | "story" | null>(null);
+  const [erreur, setErreur] = useState<string | null>(null);
+
   const lien = typeof window !== "undefined" ? window.location.origin : "";
   const texte = `Je viens de découvrir mon niveau d'exigence au restaurant 🍽️.\n\nÀ ton avis, qui est le plus exigeant entre nous ?\n\nFais le test et on compare nos cartes profil.\n${lien}`;
 
-  async function partager() {
-    if (navigator.share) {
-      try {
+  async function obtenirFichierImage(): Promise<File | null> {
+    const blob = await genererImageCarte();
+    if (!blob) return null;
+    return new File([blob], `${prenom || "profil"}-niveau-exigence-restaurant.png`, {
+      type: "image/png",
+    });
+  }
+
+  async function partagerAvecImage(bouton: "defi" | "story") {
+    setEnCours(bouton);
+    setErreur(null);
+    try {
+      const fichier = await obtenirFichierImage();
+
+      // navigator.canShare({ files }) vérifie si le partage de fichiers est
+      // supporté avant d'essayer — évite une exception sur les navigateurs
+      // qui supportent navigator.share mais pas les fichiers (ex: certains
+      // navigateurs desktop).
+      if (fichier && navigator.canShare?.({ files: [fichier] })) {
+        await navigator.share({ text: texte, files: [fichier] });
+      } else if (navigator.share) {
+        // Fallback : partage texte seul si l'image n'a pas pu être générée
+        // ou si le navigateur ne supporte pas le partage de fichiers.
         await navigator.share({ text: texte });
-      } catch {
-        // partage annulé par l'utilisateur, rien à faire
+      } else {
+        await navigator.clipboard.writeText(texte);
       }
-    } else {
-      await navigator.clipboard.writeText(texte);
+    } catch (e: any) {
+      // AbortError = l'utilisateur a juste annulé le partage, pas une vraie erreur.
+      if (e?.name !== "AbortError") {
+        console.error("Erreur partage", e);
+        setErreur("Le partage a échoué, réessaie.");
+      }
+    } finally {
+      setEnCours(null);
     }
   }
 
@@ -399,10 +445,18 @@ function EcranPartage() {
         Envoie-lui le test et comparez vos cartes profil.
       </p>
       <button
-        onClick={partager}
-        className="w-full max-w-xs rounded-2xl bg-[#1877F2] text-white font-semibold py-4 active:scale-[0.98] transition-transform mb-3"
+        onClick={() => partagerAvecImage("defi")}
+        disabled={enCours !== null}
+        className="w-full max-w-xs rounded-2xl bg-[#1877F2] text-white font-semibold py-4 active:scale-[0.98] transition-transform mb-3 disabled:opacity-50"
       >
-        📤 Envoyer le défi
+        {enCours === "defi" ? "..." : "📤 Envoyer le défi"}
+      </button>
+      <button
+        onClick={() => partagerAvecImage("story")}
+        disabled={enCours !== null}
+        className="w-full max-w-xs rounded-2xl bg-gradient-to-r from-[#F5B02E] to-[#E4483C] text-white font-semibold py-4 active:scale-[0.98] transition-transform mb-3 disabled:opacity-50"
+      >
+        {enCours === "story" ? "..." : "🎬 Mettre en story"}
       </button>
       <button
         onClick={copierLien}
@@ -410,8 +464,7 @@ function EcranPartage() {
       >
         📋 Copier le lien
       </button>
+      {erreur && <p className="text-red-500 text-xs mt-4">{erreur}</p>}
     </div>
   );
-        }
-
-    
+}
