@@ -209,7 +209,7 @@ export function MiniTest({ reponseId, onPasser }: { reponseId: string; onPasser:
           autoFocus
           value={prenom}
           onChange={(e) => setPrenom(e.target.value)}
-          placeholder="Gedy"
+          placeholder="Ton prénom"
           className="w-full max-w-xs rounded-xl bg-[#F0F2F5] border border-[#050505]/10 px-4 py-3.5 text-center text-[#050505] placeholder:text-[#050505]/40 focus:outline-none focus:border-[#1877F2] mb-4"
           onKeyDown={(e) => e.key === "Enter" && validerPrenom()}
         />
